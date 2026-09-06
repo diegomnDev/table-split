@@ -32,15 +32,14 @@ export function BillsScreen() {
       )}
 
       <div className="flex items-end gap-2 py-4">
-        <label className="flex-1">
-          <span className="sr-only">Nombre de la cuenta</span>
-          <TextInput
-            value={title}
-            placeholder="Casa Paco"
-            onChange={(event) => setTitle(event.target.value)}
-            onKeyDown={(event) => event.key === 'Enter' && create()}
-          />
-        </label>
+        <TextInput
+          className="flex-1"
+          aria-label="Nombre de la cuenta"
+          value={title}
+          placeholder="Casa Paco"
+          onChange={(event) => setTitle(event.target.value)}
+          onKeyDown={(event) => event.key === 'Enter' && create()}
+        />
         <Button onClick={create}>Crear</Button>
       </div>
 

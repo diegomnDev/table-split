@@ -30,36 +30,33 @@ export function AddItemForm({ onAdd }: AddItemFormProps) {
 
   return (
     <div className="flex items-end gap-2 border-t-2 border-dashed border-ink-faint pt-3">
-      <label className="flex-[3]">
-        <span className="sr-only">Concepto</span>
-        <TextInput
-          value={name}
-          placeholder="Concepto"
-          onChange={(event) => setName(event.target.value)}
-        />
-      </label>
-      <label className="flex-[1]">
-        <span className="sr-only">Cantidad</span>
-        <TextInput
-          value={quantity}
-          inputMode="numeric"
-          onChange={(event) => setQuantity(event.target.value)}
-        />
-      </label>
-      <label className="flex-[2]">
-        <span className="sr-only">Precio</span>
-        <TextInput
-          value={price}
-          placeholder="0,00"
-          inputMode="decimal"
-          invalid={priceInvalid}
-          onChange={(event) => {
-            setPrice(event.target.value)
-            setPriceInvalid(false)
-          }}
-          onKeyDown={(event) => event.key === 'Enter' && submit()}
-        />
-      </label>
+      <TextInput
+        className="flex-[3]"
+        aria-label="Concepto"
+        value={name}
+        placeholder="Concepto"
+        onChange={(event) => setName(event.target.value)}
+      />
+      <TextInput
+        className="flex-[1]"
+        aria-label="Cantidad"
+        value={quantity}
+        inputMode="numeric"
+        onChange={(event) => setQuantity(event.target.value)}
+      />
+      <TextInput
+        className="flex-[2]"
+        aria-label="Precio"
+        value={price}
+        placeholder="0,00"
+        inputMode="decimal"
+        invalid={priceInvalid}
+        onChange={(event) => {
+          setPrice(event.target.value)
+          setPriceInvalid(false)
+        }}
+        onKeyDown={(event) => event.key === 'Enter' && submit()}
+      />
       <Button onClick={submit}>Añadir</Button>
     </div>
   )

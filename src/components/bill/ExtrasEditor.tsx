@@ -50,27 +50,25 @@ export function ExtrasEditor({ extras, onAdd, onRemove }: ExtrasEditorProps) {
         ))}
       </ul>
       <div className="flex items-end gap-2 pt-2">
-        <label className="flex-[2]">
-          <span className="sr-only">Concepto del extra</span>
-          <TextInput
-            value={label}
-            placeholder="Propina"
-            onChange={(event) => setLabel(event.target.value)}
-          />
-        </label>
-        <label className="flex-1">
-          <span className="sr-only">Importe del extra</span>
-          <TextInput
-            value={amount}
-            placeholder="0,00"
-            inputMode="decimal"
-            invalid={invalid}
-            onChange={(event) => {
-              setAmount(event.target.value)
-              setInvalid(false)
-            }}
-          />
-        </label>
+        <TextInput
+          className="flex-[2]"
+          aria-label="Concepto del extra"
+          value={label}
+          placeholder="Propina"
+          onChange={(event) => setLabel(event.target.value)}
+        />
+        <TextInput
+          className="flex-1"
+          aria-label="Importe del extra"
+          value={amount}
+          placeholder="0,00"
+          inputMode="decimal"
+          invalid={invalid}
+          onChange={(event) => {
+            setAmount(event.target.value)
+            setInvalid(false)
+          }}
+        />
         <Button onClick={submit}>Añadir extra</Button>
       </div>
       <p className="pt-1 text-ticket-xs text-ink-soft">

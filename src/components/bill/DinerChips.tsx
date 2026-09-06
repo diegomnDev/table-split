@@ -34,15 +34,13 @@ export function DinerChips({ diners, onAdd, onRemove }: DinerChipsProps) {
           </li>
         ))}
       </ul>
-      <label>
-        <span className="sr-only">Añadir comensal</span>
-        <TextInput
-          value={name}
-          placeholder="Añadir comensal"
-          onChange={(event) => setName(event.target.value)}
-          onKeyDown={(event) => event.key === 'Enter' && submit()}
-        />
-      </label>
+      <TextInput
+        aria-label="Añadir comensal"
+        value={name}
+        placeholder="Añadir comensal"
+        onChange={(event) => setName(event.target.value)}
+        onKeyDown={(event) => event.key === 'Enter' && submit()}
+      />
     </section>
   )
 }
