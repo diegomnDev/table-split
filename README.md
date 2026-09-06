@@ -31,6 +31,15 @@ npm run dev
 
 Los importes son siempre enteros de céntimos. Los floats no representan dinero.
 
+## Qué hace
+
+- Entrada manual de ítems, comensales y asignación individual, compartida o por unidades.
+- Extras: propina, cubierto y descuentos, a partes iguales entre todos.
+- Varios pagadores: registras quién puso cuánto y la app calcula las transferencias que saldan la cuenta.
+- Compartir: copiar el resumen como texto pegable, o un enlace que lleva la cuenta entera dentro.
+- Escanear el ticket con la cámara, si hay un proxy configurado (ver `worker/`).
+- Funciona sin conexión salvo el escaneo, que necesita red por definición.
+
 ## Reglas de reparto
 
 - Los ítems se reparten a partes iguales entre los comensales marcados. Si un
@@ -42,6 +51,19 @@ Los importes son siempre enteros de céntimos. Los floats no representan dinero.
   las partes coincide siempre con el total del ticket.
 - Un ítem sin asignar no se reparte a escondidas: cuenta en el total, aparece
   como "sin asignar" y genera un aviso.
+- Las transferencias se calculan con emparejamiento voraz entre quien tiene
+  saldo a favor y quien lo tiene en contra. No garantiza el mínimo teórico de
+  transferencias, que es NP-duro, pero sí es óptimo con uno o dos pagadores y
+  salda todos los saldos exactamente.
+- Si lo pagado no suma el total, la app lo dice y no te deja fiarte de las
+  transferencias.
+
+## Escanear el ticket
+
+Opcional y a coste cero. La clave de la API no puede vivir en el navegador, así
+que la guarda un Cloudflare Worker que hace de proxy: ver `worker/README.md`.
+Sin `VITE_SCAN_ENDPOINT` configurado, el botón no aparece y la app funciona
+igual. Copia `.env.example` a `.env` para configurarlo.
 
 ## Despliegue
 

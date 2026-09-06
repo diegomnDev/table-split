@@ -4,8 +4,10 @@ import { AddItemForm } from '@/components/bill/AddItemForm'
 import { AssignSheet } from '@/components/bill/AssignSheet'
 import { DinerChips } from '@/components/bill/DinerChips'
 import { ItemRow } from '@/components/bill/ItemRow'
+import { ScanSheet } from '@/components/bill/ScanSheet'
 import { Amount } from '@/components/ui/amount'
 import { computeSplit } from '@/core/split'
+import { scanEndpoint } from '@/scan/scan-client'
 import { useBills } from '@/state/use-bills'
 
 export function BillScreen() {
@@ -28,6 +30,7 @@ export function BillScreen() {
   const { billTotal, warnings } = computeSplit(bill)
   const unassignedCount = warnings.filter((warning) => warning.kind === 'unassigned-item').length
   const assigningItem = bill.items.find((item) => item.id === assigningItemId) ?? null
+  const endpoint = scanEndpoint()
 
   return (
     <main className="mx-auto max-w-md px-4 pb-24">
@@ -64,6 +67,14 @@ export function BillScreen() {
       </ul>
 
       <div className="py-3">
+        {endpoint && (
+          <ScanSheet
+            endpoint={endpoint}
+            onAdd={(name, unitPrice, quantity) =>
+              dispatchTo(bill.id, { type: 'ADD_ITEM', name, unitPrice, quantity })
+            }
+          />
+        )}
         <AddItemForm
           onAdd={(name, unitPrice, quantity) =>
             dispatchTo(bill.id, { type: 'ADD_ITEM', name, unitPrice, quantity })

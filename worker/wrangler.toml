@@ -1,0 +1,12 @@
+name = "table-spit-scan"
+main = "src/index.ts"
+compatibility_date = "2026-09-06"
+
+[vars]
+# The exact origin of the deployed app. Never "*".
+ALLOWED_ORIGIN = "http://localhost:4173"
+# Override only if a better or cheaper model appears.
+# GEMINI_MODEL = "gemini-3.8-flash"
+
+# GEMINI_API_KEY is a secret, not a var:
+#   npx wrangler secret put GEMINI_API_KEY
