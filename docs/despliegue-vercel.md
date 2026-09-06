@@ -31,6 +31,11 @@ despliegues automáticos en cada push.
 
 ## 2. Crear el proyecto en Vercel
 
+> **Antes de nada:** si ya has puesto `develop` como rama por defecto, Vercel
+> intentará desplegar `develop` a producción, porque toma la rama por defecto
+> del repositorio. Ve a **Settings → Git → Production Branch** y ponlo a `main`.
+> Ver `docs/ramas-y-despliegue.md`.
+
 Desde el panel: **Add New → Project**, eliges el repositorio y Vercel detecta
 Vite solo. Los valores que debe mostrar:
 
@@ -79,7 +84,8 @@ Dos cosas importantes:
 vercel --prod
 ```
 
-O simplemente haz push a la rama principal si conectaste GitHub.
+O haz push a `main` si conectaste GitHub. Un push a `develop` genera un
+despliegue de Preview con su propia URL, no toca producción.
 
 ## 5. Comprobaciones después del primer despliegue
 

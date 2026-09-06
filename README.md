@@ -86,10 +86,16 @@ lista de comprobación están en `docs/legal-despliegue.md`.
 Añadir analítica de cualquier tipo invalida lo anterior y obliga a replantear el
 consentimiento.
 
+## Ramas
+
+`main` solo lleva lo que va a producción. `develop` es la rama por defecto y por
+donde entra todo lo demás, incluidas las actualizaciones de Dependabot. El
+porqué y las trampas están en `docs/ramas-y-despliegue.md`.
+
 ## Despliegue
 
-Vercel. Los pasos completos, con variables de entorno y comprobaciones, están en
-`docs/despliegue-vercel.md`.
+Vercel, desde `main`. Los pasos completos, con variables de entorno y
+comprobaciones, están en `docs/despliegue-vercel.md`.
 
 ## Licencia
 

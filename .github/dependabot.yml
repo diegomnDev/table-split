@@ -1,7 +1,16 @@
 version: 2
+
+# main only ever receives what is going to production, so every automated bump
+# lands on develop first.
+#
+# Note that `target-branch` steers VERSION updates only. Dependabot SECURITY
+# updates always target the repository's default branch and there is no setting
+# to change that, so `develop` must be the default branch on GitHub for this to
+# hold. See docs/ramas-y-despliegue.md.
 updates:
   - package-ecosystem: npm
     directory: /
+    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -15,5 +24,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
+    target-branch: develop
     schedule:
       interval: monthly
