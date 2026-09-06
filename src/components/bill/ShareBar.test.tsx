@@ -52,7 +52,10 @@ describe('ShareBar', () => {
     await user.click(screen.getByRole('button', { name: /copiar enlace/i }))
 
     const link = writeText.mock.calls[0]?.[0] as string
-    const code = link.split('/i/')[1] ?? ''
+    // The code must live in the fragment: a path would be logged by the host.
+    expect(link).toContain('/i#')
+    expect(new URL(link).pathname).toBe('/i')
+    const code = link.split('#')[1] ?? ''
     expect(decodeBill(code)?.title).toBe('Casa Paco')
   })
 

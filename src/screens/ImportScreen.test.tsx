@@ -18,10 +18,10 @@ const shared = makeBill({
 
 function renderImport(code: string) {
   return render(
-    <MemoryRouter initialEntries={[`/i/${code}`]}>
+    <MemoryRouter initialEntries={[`/i#${code}`]}>
       <BillsProvider>
         <Routes>
-          <Route path="/i/:code" element={<ImportScreen />} />
+          <Route path="/i" element={<ImportScreen />} />
           <Route path="/b/:billId" element={<BillScreen />} />
           <Route path="/" element={<p>Mis cuentas</p>} />
         </Routes>
@@ -67,6 +67,20 @@ describe('ImportScreen', () => {
 
   it('avisa si el enlace no es válido', () => {
     renderImport('esto-no-vale')
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/no es válido/i)
+  })
+
+  it('avisa si el enlace no trae código', () => {
+    render(
+      <MemoryRouter initialEntries={['/i']}>
+        <BillsProvider>
+          <Routes>
+            <Route path="/i" element={<ImportScreen />} />
+          </Routes>
+        </BillsProvider>
+      </MemoryRouter>,
+    )
 
     expect(screen.getByRole('alert')).toHaveTextContent(/no es válido/i)
   })

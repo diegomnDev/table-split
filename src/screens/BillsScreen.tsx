@@ -73,6 +73,12 @@ export function BillsScreen() {
           })}
         </ul>
       )}
+
+      <footer className="border-t border-rule pt-4 text-center">
+        <Link to="/legal" className="text-ticket-xs uppercase tracking-ticket text-ink-soft">
+          Aviso legal y privacidad
+        </Link>
+      </footer>
     </main>
   )
 }

@@ -65,6 +65,20 @@ que la guarda un Cloudflare Worker que hace de proxy: ver `worker/README.md`.
 Sin `VITE_SCAN_ENDPOINT` configurado, el botón no aparece y la app funciona
 igual. Copia `.env.example` a `.env` para configurarlo.
 
+## Legal
+
+Sin cookies, sin analítica, sin cuentas: por eso no lleva banner de
+consentimiento. El almacenamiento local entra en la excepción de "estrictamente
+necesario" del art. 5.3 de ePrivacy, y el deber de informar se cumple en
+`/legal`.
+
+**Antes de desplegar hay que rellenar `src/legal/owner.ts`.** La pantalla
+`/legal` avisa en rojo mientras siga sin configurar. El análisis completo y la
+lista de comprobación están en `docs/legal-despliegue.md`.
+
+Añadir analítica de cualquier tipo invalida lo anterior y obliga a replantear el
+consentimiento.
+
 ## Despliegue
 
 Salida estática. En Cloudflare Pages: build `npm run build`, directorio `dist`.

@@ -34,7 +34,10 @@ export function ShareBar({ bill, result }: ShareBarProps) {
     setFallback(text)
   }
 
-  const link = `${window.location.origin}/i/${encodeBill(bill)}`
+  // The code goes in the fragment, never the path. A path is sent to the
+  // server on every request and lands in its access logs; a fragment never
+  // leaves the browser. The whole bill travels inside this code.
+  const link = `${window.location.origin}/i#${encodeBill(bill)}`
 
   return (
     <section className="border-t-2 border-dashed border-ink-faint py-4">

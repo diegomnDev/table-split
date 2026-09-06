@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { Amount } from '@/components/ui/amount'
 import { Button } from '@/components/ui/button'
 import { decodeBill } from '@/core/bill-code'
@@ -6,11 +6,13 @@ import { computeSplit } from '@/core/split'
 import { useBills } from '@/state/use-bills'
 
 export function ImportScreen() {
-  const { code = '' } = useParams()
+  // Read from the fragment: it never reaches the server, so a shared bill
+  // stays out of hosting access logs.
+  const { hash } = useLocation()
   const { importBill } = useBills()
   const navigate = useNavigate()
 
-  const bill = decodeBill(code)
+  const bill = decodeBill(hash.replace(/^#/, ''))
 
   if (!bill) {
     return (

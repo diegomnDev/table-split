@@ -78,6 +78,14 @@ export function ScanSheet({ endpoint, onAdd }: ScanSheetProps) {
         }}
       />
 
+      {/* AI Act art. 50 transparency, and the plain fact that the photo leaves
+          the device. Said before the upload, not after. */}
+      <p className="pt-1 text-ticket-xs text-ink-soft">
+        La foto la lee un modelo de inteligencia artificial de Google. Sale de tu móvil y puede
+        equivocarse: revisa cada línea antes de añadirla. No fotografíes datos que no quieras
+        enviar.
+      </p>
+
       {error && (
         <p role="alert" className="pt-2 text-ticket-sm text-accent">
           {error}
