@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router'
 import { BillScreen } from '@/screens/BillScreen'
 import { BillsScreen } from '@/screens/BillsScreen'
+import { ImportScreen } from '@/screens/ImportScreen'
 import { ResultScreen } from '@/screens/ResultScreen'
 import { BillsProvider } from '@/state/bills-context'
 
@@ -12,6 +13,7 @@ export default function App() {
           <Route path="/" element={<BillsScreen />} />
           <Route path="/b/:billId" element={<BillScreen />} />
           <Route path="/b/:billId/resultado" element={<ResultScreen />} />
+          <Route path="/i/:code" element={<ImportScreen />} />
         </Routes>
       </BrowserRouter>
     </BillsProvider>

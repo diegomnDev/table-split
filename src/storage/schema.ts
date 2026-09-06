@@ -1,46 +1,5 @@
 import { z } from 'zod'
-
-const centsSchema = z.number().int()
-
-const dinerSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  order: z.number().int(),
-})
-
-const assignmentSchema = z.union([
-  z.object({ mode: z.literal('equal'), dinerIds: z.array(z.string()) }),
-  z.object({ mode: z.literal('units'), units: z.record(z.string(), z.number().int()) }),
-])
-
-const itemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  unitPrice: centsSchema,
-  quantity: z.number().int().min(0),
-  assignment: assignmentSchema,
-})
-
-const extraSchema = z.object({
-  id: z.string(),
-  label: z.string(),
-  amount: centsSchema,
-})
-
-const paymentSchema = z.object({
-  dinerId: z.string(),
-  amount: centsSchema,
-})
-
-export const billSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  createdAt: z.number(),
-  diners: z.array(dinerSchema),
-  items: z.array(itemSchema),
-  extras: z.array(extraSchema),
-  payments: z.array(paymentSchema),
-})
+import { billSchema } from '@/core/schema'
 
 export const storedPayloadSchema = z.object({
   schemaVersion: z.number().int(),
@@ -49,13 +8,38 @@ export const storedPayloadSchema = z.object({
 
 /** Schema version 1: a single optional payer, no amounts. Kept so old saved
  * bills can be migrated instead of discarded. */
+const dinerSchemaV1 = z.object({
+  id: z.string(),
+  name: z.string(),
+  order: z.number().int(),
+})
+
+const assignmentSchemaV1 = z.union([
+  z.object({ mode: z.literal('equal'), dinerIds: z.array(z.string()) }),
+  z.object({ mode: z.literal('units'), units: z.record(z.string(), z.number().int()) }),
+])
+
+const itemSchemaV1 = z.object({
+  id: z.string(),
+  name: z.string(),
+  unitPrice: z.number().int(),
+  quantity: z.number().int().min(0),
+  assignment: assignmentSchemaV1,
+})
+
+const extraSchemaV1 = z.object({
+  id: z.string(),
+  label: z.string(),
+  amount: z.number().int(),
+})
+
 const billSchemaV1 = z.object({
   id: z.string(),
   title: z.string(),
   createdAt: z.number(),
-  diners: z.array(dinerSchema),
-  items: z.array(itemSchema),
-  extras: z.array(extraSchema),
+  diners: z.array(dinerSchemaV1),
+  items: z.array(itemSchemaV1),
+  extras: z.array(extraSchemaV1),
   payerId: z.string().nullable(),
 })
 

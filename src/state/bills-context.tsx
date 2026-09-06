@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { createContext, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import type { Bill } from '@/core/types'
 import { type BillAction, billReducer, createBill } from '@/state/bill-reducer'
@@ -7,6 +8,7 @@ export type BillsContextValue = {
   bills: Bill[]
   recovered: boolean
   addBill: (title: string) => Bill
+  importBill: (bill: Bill) => Bill
   removeBill: (billId: string) => void
   dispatchTo: (billId: string, action: BillAction) => void
   getBill: (billId: string) => Bill | undefined
@@ -37,6 +39,14 @@ export function BillsProvider({ children }: { children: ReactNode }) {
     return bill
   }, [])
 
+  // A shared bill is saved as this device's own copy: a fresh id keeps it
+  // from colliding with an existing bill, and edits stay local.
+  const importBill = useCallback((incoming: Bill) => {
+    const bill: Bill = { ...incoming, id: nanoid(), createdAt: Date.now() }
+    setBills((current) => [bill, ...current])
+    return bill
+  }, [])
+
   const removeBill = useCallback((billId: string) => {
     setBills((current) => current.filter((bill) => bill.id !== billId))
   }, [])
@@ -51,7 +61,15 @@ export function BillsProvider({ children }: { children: ReactNode }) {
 
   return (
     <BillsContext.Provider
-      value={{ bills, recovered: initial.recovered, addBill, removeBill, dispatchTo, getBill }}
+      value={{
+        bills,
+        recovered: initial.recovered,
+        addBill,
+        importBill,
+        removeBill,
+        dispatchTo,
+        getBill,
+      }}
     >
       {children}
     </BillsContext.Provider>

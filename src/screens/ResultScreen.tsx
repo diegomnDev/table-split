@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { ExtrasEditor } from '@/components/bill/ExtrasEditor'
 import { PaymentsEditor } from '@/components/bill/PaymentsEditor'
+import { ShareBar } from '@/components/bill/ShareBar'
 import { Amount } from '@/components/ui/amount'
 import { computeSplit } from '@/core/split'
 import { useBills } from '@/state/use-bills'
@@ -77,6 +78,8 @@ export function ResultScreen() {
         onAdd={(label, amount) => dispatchTo(bill.id, { type: 'ADD_EXTRA', label, amount })}
         onRemove={(extraId) => dispatchTo(bill.id, { type: 'REMOVE_EXTRA', extraId })}
       />
+
+      <ShareBar bill={bill} result={result} />
 
       <div className="flex items-baseline justify-between border-t-2 border-dashed border-ink-faint py-3">
         <span className="text-ticket-xs uppercase tracking-ticket text-ink-soft">Total</span>
