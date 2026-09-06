@@ -157,7 +157,7 @@ describe('computeSplit — avisos', () => {
 })
 
 describe('computeSplit — deudas', () => {
-  it('sin pagador no hay deudas', () => {
+  it('sin pagos registrados no hay deudas', () => {
     const bill = makeBill({
       diners: [ana, luis],
       items: [makeItem('i1', 1000, { mode: 'equal', dinerIds: ['ana', 'luis'] })],
@@ -166,11 +166,11 @@ describe('computeSplit — deudas', () => {
     expect(computeSplit(bill).debts).toEqual([])
   })
 
-  it('con pagador, los demás le deben su parte', () => {
+  it('con un pagador, los demás le deben su parte', () => {
     const bill = makeBill({
       diners: [ana, luis, mar],
       items: [makeItem('i1', 3000, { mode: 'equal', dinerIds: ['ana', 'luis', 'mar'] })],
-      payerId: 'ana',
+      payments: [{ dinerId: 'ana', amount: 3000 }],
     })
 
     expect(computeSplit(bill).debts).toEqual([
@@ -183,7 +183,7 @@ describe('computeSplit — deudas', () => {
     const bill = makeBill({
       diners: [ana, luis],
       items: [makeItem('i1', 1000, { mode: 'equal', dinerIds: ['ana'] })],
-      payerId: 'ana',
+      payments: [{ dinerId: 'ana', amount: 1000 }],
     })
 
     expect(computeSplit(bill).debts).toEqual([])
@@ -194,9 +194,49 @@ describe('computeSplit — deudas', () => {
       diners: [ana, luis],
       items: [makeItem('i1', 1000, { mode: 'equal', dinerIds: ['luis'] })],
       extras: [makeExtra('e1', -1600, 'Cupón')],
-      payerId: 'luis',
+      payments: [{ dinerId: 'luis', amount: -600 }],
     })
 
     expect(computeSplit(bill).debts).toEqual([{ from: 'luis', to: 'ana', amount: 800 }])
+  })
+
+  it('reparte entre dos pagadores', () => {
+    const bill = makeBill({
+      diners: [ana, luis, mar],
+      items: [makeItem('i1', 3000, { mode: 'equal', dinerIds: ['ana', 'luis', 'mar'] })],
+      payments: [
+        { dinerId: 'ana', amount: 2000 },
+        { dinerId: 'luis', amount: 1000 },
+      ],
+    })
+
+    expect(computeSplit(bill).debts).toEqual([{ from: 'mar', to: 'ana', amount: 1000 }])
+  })
+
+  it('avisa si lo pagado no cuadra con el total', () => {
+    const bill = makeBill({
+      diners: [ana, luis],
+      items: [makeItem('i1', 1000, { mode: 'equal', dinerIds: ['ana', 'luis'] })],
+      payments: [{ dinerId: 'ana', amount: 900 }],
+    })
+    const result = computeSplit(bill)
+
+    expect(result.paidTotal).toBe(900)
+    expect(result.warnings).toContainEqual({
+      kind: 'payments-mismatch',
+      paid: 900,
+      expected: 1000,
+    })
+  })
+
+  it('no avisa de descuadre si no hay pagos registrados', () => {
+    const bill = makeBill({
+      diners: [ana],
+      items: [makeItem('i1', 1000, { mode: 'equal', dinerIds: ['ana'] })],
+    })
+
+    expect(computeSplit(bill).warnings).not.toContainEqual(
+      expect.objectContaining({ kind: 'payments-mismatch' }),
+    )
   })
 })

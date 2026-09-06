@@ -1,45 +1,51 @@
 import { z } from 'zod'
+import { billSchema } from '@/core/schema'
 
-const centsSchema = z.number().int()
+export const storedPayloadSchema = z.object({
+  schemaVersion: z.number().int(),
+  bills: z.array(billSchema),
+})
 
-const dinerSchema = z.object({
+/** Schema version 1: a single optional payer, no amounts. Kept so old saved
+ * bills can be migrated instead of discarded. */
+const dinerSchemaV1 = z.object({
   id: z.string(),
   name: z.string(),
   order: z.number().int(),
 })
 
-const assignmentSchema = z.union([
+const assignmentSchemaV1 = z.union([
   z.object({ mode: z.literal('equal'), dinerIds: z.array(z.string()) }),
   z.object({ mode: z.literal('units'), units: z.record(z.string(), z.number().int()) }),
 ])
 
-const itemSchema = z.object({
+const itemSchemaV1 = z.object({
   id: z.string(),
   name: z.string(),
-  unitPrice: centsSchema,
+  unitPrice: z.number().int(),
   quantity: z.number().int().min(0),
-  assignment: assignmentSchema,
+  assignment: assignmentSchemaV1,
 })
 
-const extraSchema = z.object({
+const extraSchemaV1 = z.object({
   id: z.string(),
   label: z.string(),
-  amount: centsSchema,
+  amount: z.number().int(),
 })
 
-export const billSchema = z.object({
+const billSchemaV1 = z.object({
   id: z.string(),
   title: z.string(),
   createdAt: z.number(),
-  diners: z.array(dinerSchema),
-  items: z.array(itemSchema),
-  extras: z.array(extraSchema),
+  diners: z.array(dinerSchemaV1),
+  items: z.array(itemSchemaV1),
+  extras: z.array(extraSchemaV1),
   payerId: z.string().nullable(),
 })
 
-export const storedPayloadSchema = z.object({
-  schemaVersion: z.number().int(),
-  bills: z.array(billSchema),
+export const storedPayloadV1Schema = z.object({
+  schemaVersion: z.literal(1),
+  bills: z.array(billSchemaV1),
 })
 
 export type StoredPayload = z.infer<typeof storedPayloadSchema>

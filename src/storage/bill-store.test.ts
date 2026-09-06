@@ -38,10 +38,46 @@ describe('bill-store', () => {
   it('arranca limpio y avisa si la forma no valida', () => {
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ schemaVersion: 1, bills: [{ id: 'x', title: 42 }] }),
+      JSON.stringify({ schemaVersion: 2, bills: [{ id: 'x', title: 42 }] }),
     )
 
     expect(loadBills()).toEqual({ bills: [], recovered: true })
+  })
+
+  it('migra una cuenta guardada en el esquema 1 sin perder ítems', () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        bills: [
+          {
+            id: 'b1',
+            title: 'Casa Paco',
+            createdAt: 123,
+            diners: [{ id: 'ana', name: 'Ana', order: 0 }],
+            items: [
+              {
+                id: 'i1',
+                name: 'Pulpo',
+                unitPrice: 1980,
+                quantity: 1,
+                assignment: { mode: 'equal', dinerIds: ['ana'] },
+              },
+            ],
+            extras: [],
+            payerId: 'ana',
+          },
+        ],
+      }),
+    )
+
+    const loaded = loadBills()
+
+    expect(loaded.recovered).toBe(false)
+    expect(loaded.migratedFrom).toBe(1)
+    expect(loaded.bills[0]?.title).toBe('Casa Paco')
+    expect(loaded.bills[0]?.items[0]?.unitPrice).toBe(1980)
+    expect(loaded.bills[0]?.payments).toEqual([])
   })
 
   it('arranca limpio ante una versión de esquema futura', () => {

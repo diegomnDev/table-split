@@ -26,6 +26,13 @@ export type Extra = {
   amount: Cents
 }
 
+/** Money actually put in by a diner. Several diners can pay, and one diner
+ * can pay more than once. */
+export type Payment = {
+  dinerId: string
+  amount: Cents
+}
+
 export type Bill = {
   id: string
   title: string
@@ -33,8 +40,8 @@ export type Bill = {
   diners: Diner[]
   items: Item[]
   extras: Extra[]
-  /** null means everyone pays their own share directly. */
-  payerId: string | null
+  /** Empty means nobody has fronted money yet: each diner pays their own share. */
+  payments: Payment[]
 }
 
 export type Warning =
@@ -42,6 +49,7 @@ export type Warning =
   | { kind: 'units-mismatch'; itemId: string; assigned: number; expected: number }
   | { kind: 'negative-share'; dinerId: string; amount: Cents }
   | { kind: 'no-diners' }
+  | { kind: 'payments-mismatch'; paid: Cents; expected: Cents }
 
 export type DinerSplit = {
   dinerId: string
@@ -62,6 +70,8 @@ export type SplitResult = {
   billTotal: Cents
   /** Money that belongs to no diner. Shown, never hidden or redistributed. */
   unassignedTotal: Cents
+  /** Sum of every recorded payment. Compare against billTotal. */
+  paidTotal: Cents
   debts: Debt[]
   warnings: Warning[]
 }

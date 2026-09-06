@@ -26,7 +26,7 @@ export function makeBill(partial: Partial<Bill> = {}): Bill {
     diners: [],
     items: [],
     extras: [],
-    payerId: null,
+    payments: [],
     ...partial,
   }
 }

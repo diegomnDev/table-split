@@ -1,5 +1,7 @@
 import { Link, useParams } from 'react-router'
 import { ExtrasEditor } from '@/components/bill/ExtrasEditor'
+import { PaymentsEditor } from '@/components/bill/PaymentsEditor'
+import { ShareBar } from '@/components/bill/ShareBar'
 import { Amount } from '@/components/ui/amount'
 import { computeSplit } from '@/core/split'
 import { useBills } from '@/state/use-bills'
@@ -33,26 +35,14 @@ export function ResultScreen() {
         <h1 className="text-ticket-lg uppercase tracking-ticket">Reparto</h1>
       </header>
 
-      <label className="flex items-center gap-2 border-b border-rule py-3">
-        <span className="text-ticket-xs uppercase tracking-ticket text-ink-soft">Pagó todo</span>
-        <select
-          value={bill.payerId ?? ''}
-          onChange={(event) =>
-            dispatchTo(bill.id, {
-              type: 'SET_PAYER',
-              dinerId: event.target.value === '' ? null : event.target.value,
-            })
-          }
-          className="min-h-11 flex-1 bg-transparent text-ticket-base"
-        >
-          <option value="">Nadie (cada uno lo suyo)</option>
-          {bill.diners.map((diner) => (
-            <option key={diner.id} value={diner.id}>
-              {diner.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      <PaymentsEditor
+        diners={bill.diners}
+        payments={bill.payments}
+        billTotal={result.billTotal}
+        paidTotal={result.paidTotal}
+        onSet={(dinerId, amount) => dispatchTo(bill.id, { type: 'SET_PAYMENT', dinerId, amount })}
+        onClear={() => dispatchTo(bill.id, { type: 'CLEAR_PAYMENTS' })}
+      />
 
       <ul data-testid="per-diner" className="py-2">
         {result.perDiner.map((share) => (
@@ -74,7 +64,7 @@ export function ResultScreen() {
       )}
 
       {result.debts.length > 0 && (
-        <ul className="border-t-2 border-dashed border-ink-faint py-3">
+        <ul data-testid="debts" className="border-t-2 border-dashed border-ink-faint py-3">
           {result.debts.map((debt) => (
             <li key={`${debt.from}-${debt.to}`} className="py-1 text-ticket-base">
               {nameOf(debt.from)} debe <Amount cents={debt.amount} /> a {nameOf(debt.to)}
@@ -88,6 +78,8 @@ export function ResultScreen() {
         onAdd={(label, amount) => dispatchTo(bill.id, { type: 'ADD_EXTRA', label, amount })}
         onRemove={(extraId) => dispatchTo(bill.id, { type: 'REMOVE_EXTRA', extraId })}
       />
+
+      <ShareBar bill={bill} result={result} />
 
       <div className="flex items-baseline justify-between border-t-2 border-dashed border-ink-faint py-3">
         <span className="text-ticket-xs uppercase tracking-ticket text-ink-soft">Total</span>

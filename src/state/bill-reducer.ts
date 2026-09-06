@@ -13,7 +13,8 @@ export type BillAction =
   | { type: 'REMOVE_ITEM'; itemId: string }
   | { type: 'ADD_EXTRA'; label: string; amount: Cents }
   | { type: 'REMOVE_EXTRA'; extraId: string }
-  | { type: 'SET_PAYER'; dinerId: string | null }
+  | { type: 'SET_PAYMENT'; dinerId: string; amount: Cents }
+  | { type: 'CLEAR_PAYMENTS' }
 
 export function createBill(title: string): Bill {
   return {
@@ -23,7 +24,7 @@ export function createBill(title: string): Bill {
     diners: [],
     items: [],
     extras: [],
-    payerId: null,
+    payments: [],
   }
 }
 
@@ -72,7 +73,7 @@ export function billReducer(bill: Bill, action: BillAction): Bill {
         ...bill,
         diners: bill.diners.filter((diner) => diner.id !== action.dinerId),
         items: bill.items.map((item) => withoutDiner(item, action.dinerId)),
-        payerId: bill.payerId === action.dinerId ? null : bill.payerId,
+        payments: bill.payments.filter((payment) => payment.dinerId !== action.dinerId),
       }
 
     case 'ADD_ITEM': {
@@ -128,7 +129,13 @@ export function billReducer(bill: Bill, action: BillAction): Bill {
     case 'REMOVE_EXTRA':
       return { ...bill, extras: bill.extras.filter((extra) => extra.id !== action.extraId) }
 
-    case 'SET_PAYER':
-      return { ...bill, payerId: action.dinerId }
+    case 'SET_PAYMENT': {
+      const others = bill.payments.filter((payment) => payment.dinerId !== action.dinerId)
+      if (action.amount === 0) return { ...bill, payments: others }
+      return { ...bill, payments: [...others, { dinerId: action.dinerId, amount: action.amount }] }
+    }
+
+    case 'CLEAR_PAYMENTS':
+      return { ...bill, payments: [] }
   }
 }
