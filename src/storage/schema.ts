@@ -27,7 +27,29 @@ const extraSchema = z.object({
   amount: centsSchema,
 })
 
+const paymentSchema = z.object({
+  dinerId: z.string(),
+  amount: centsSchema,
+})
+
 export const billSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  createdAt: z.number(),
+  diners: z.array(dinerSchema),
+  items: z.array(itemSchema),
+  extras: z.array(extraSchema),
+  payments: z.array(paymentSchema),
+})
+
+export const storedPayloadSchema = z.object({
+  schemaVersion: z.number().int(),
+  bills: z.array(billSchema),
+})
+
+/** Schema version 1: a single optional payer, no amounts. Kept so old saved
+ * bills can be migrated instead of discarded. */
+const billSchemaV1 = z.object({
   id: z.string(),
   title: z.string(),
   createdAt: z.number(),
@@ -37,9 +59,9 @@ export const billSchema = z.object({
   payerId: z.string().nullable(),
 })
 
-export const storedPayloadSchema = z.object({
-  schemaVersion: z.number().int(),
-  bills: z.array(billSchema),
+export const storedPayloadV1Schema = z.object({
+  schemaVersion: z.literal(1),
+  bills: z.array(billSchemaV1),
 })
 
 export type StoredPayload = z.infer<typeof storedPayloadSchema>

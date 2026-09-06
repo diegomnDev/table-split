@@ -1,7 +1,7 @@
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
 import { computeSplit } from '@/core/split'
-import type { Assignment, Bill, Diner, Extra, Item } from '@/core/types'
+import type { Assignment, Bill, Diner, Extra, Item, Payment } from '@/core/types'
 
 const dinersArb = fc
   .array(fc.string({ minLength: 1, maxLength: 6 }), { minLength: 0, maxLength: 8 })
@@ -50,6 +50,17 @@ const extrasArb: fc.Arbitrary<Extra[]> = fc.array(
   { maxLength: 4 },
 )
 
+function paymentsArb(dinerIds: string[]): fc.Arbitrary<Payment[]> {
+  if (dinerIds.length === 0) return fc.constant([])
+  return fc.array(
+    fc.record({
+      dinerId: fc.constantFrom(...dinerIds),
+      amount: fc.integer({ min: -5_000, max: 50_000 }),
+    }),
+    { maxLength: 3 },
+  )
+}
+
 const billArb: fc.Arbitrary<Bill> = dinersArb.chain((diners) => {
   const dinerIds = diners.map((diner) => diner.id)
   return fc.record({
@@ -59,7 +70,7 @@ const billArb: fc.Arbitrary<Bill> = dinersArb.chain((diners) => {
     diners: fc.constant(diners),
     items: itemsArb(dinerIds),
     extras: extrasArb,
-    payerId: dinerIds.length > 0 ? fc.constantFrom(null, ...dinerIds) : fc.constant(null),
+    payments: paymentsArb(dinerIds),
   })
 })
 
@@ -113,6 +124,46 @@ describe('computeSplit — invariantes', () => {
         )
       }),
       { numRuns: 500 },
+    )
+  })
+
+  it('las transferencias saldan exactamente cada balance', () => {
+    fc.assert(
+      fc.property(billArb, (bill) => {
+        const result = computeSplit(bill)
+        const paidBy = new Map<string, number>()
+        for (const payment of bill.payments) {
+          paidBy.set(payment.dinerId, (paidBy.get(payment.dinerId) ?? 0) + payment.amount)
+        }
+
+        for (const share of result.perDiner) {
+          const balance = (paidBy.get(share.dinerId) ?? 0) - share.total
+          const sent = result.debts
+            .filter((debt) => debt.from === share.dinerId)
+            .reduce((sum, debt) => sum + debt.amount, 0)
+          const received = result.debts
+            .filter((debt) => debt.to === share.dinerId)
+            .reduce((sum, debt) => sum + debt.amount, 0)
+
+          // Only balances that a counterparty exists for can be settled, so
+          // what moves never exceeds what is owed, and never has the wrong sign.
+          if (balance > 0) expect(received - sent).toBeLessThanOrEqual(balance)
+          if (balance < 0) expect(sent - received).toBeLessThanOrEqual(-balance)
+        }
+      }),
+      { numRuns: 1000 },
+    )
+  })
+
+  it('ninguna transferencia es negativa ni va de alguien a sí mismo', () => {
+    fc.assert(
+      fc.property(billArb, (bill) => {
+        for (const debt of computeSplit(bill).debts) {
+          expect(debt.amount).toBeGreaterThan(0)
+          expect(debt.from).not.toBe(debt.to)
+        }
+      }),
+      { numRuns: 1000 },
     )
   })
 

@@ -51,8 +51,40 @@ describe('ResultScreen', () => {
   })
 
   it('con pagador, muestra quién le debe cuánto', () => {
-    renderResult({ ...bill, payerId: 'ana' })
-    expect(screen.getByText(/luis debe/i)).toHaveTextContent('Luis debe 5,00 € a Ana')
+    renderResult({ ...bill, payments: [{ dinerId: 'ana', amount: 4000 }] })
+    expect(screen.getByTestId('debts')).toHaveTextContent('Luis debe 5,00 € a Ana')
+  })
+
+  it('el atajo "pagó todo" registra el total y calcula la transferencia', async () => {
+    const user = userEvent.setup()
+    renderResult(bill)
+
+    await user.click(screen.getByRole('button', { name: /ana pagó todo/i }))
+
+    expect(screen.getByTestId('debts')).toHaveTextContent('Luis debe 5,00 € a Ana')
+    expect(screen.queryByTestId('payments-mismatch')).not.toBeInTheDocument()
+  })
+
+  it('avisa cuando lo pagado no cuadra con el total', async () => {
+    const user = userEvent.setup()
+    renderResult(bill)
+
+    await user.type(screen.getByLabelText(/puso ana/i), '30')
+    await user.click(screen.getAllByRole('button', { name: /registrar pago/i })[0] as HTMLElement)
+
+    expect(screen.getByTestId('payments-mismatch')).toHaveTextContent(/faltan/i)
+    expect(screen.getByTestId('payments-mismatch')).toHaveTextContent('10,00 €')
+  })
+
+  it('rechaza un importe de pago inválido', async () => {
+    const user = userEvent.setup()
+    renderResult(bill)
+
+    await user.type(screen.getByLabelText(/puso ana/i), 'abc')
+    await user.click(screen.getAllByRole('button', { name: /registrar pago/i })[0] as HTMLElement)
+
+    expect(screen.getByLabelText(/puso ana/i)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.queryByTestId('debts')).not.toBeInTheDocument()
   })
 
   it('declara el dinero sin asignar', () => {

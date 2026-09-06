@@ -10,7 +10,7 @@ describe('createBill', () => {
     expect(bill.id).not.toBe('')
     expect(bill.createdAt).toBeGreaterThan(0)
     expect(bill.diners).toEqual([])
-    expect(bill.payerId).toBeNull()
+    expect(bill.payments).toEqual([])
   })
 })
 
@@ -41,14 +41,14 @@ describe('billReducer', () => {
         makeItem('i1', 1000, { mode: 'equal', dinerIds: ['ana', 'luis'] }),
         makeItem('i2', 500, { mode: 'units', units: { ana: 1, luis: 2 } }, 3),
       ],
-      payerId: 'ana',
+      payments: [{ dinerId: 'ana', amount: 1500 }],
     })
     const next = billReducer(bill, { type: 'REMOVE_DINER', dinerId: 'ana' })
 
     expect(next.diners.map((d) => d.id)).toEqual(['luis'])
     expect(next.items[0]?.assignment).toEqual({ mode: 'equal', dinerIds: ['luis'] })
     expect(next.items[1]?.assignment).toEqual({ mode: 'units', units: { luis: 2 } })
-    expect(next.payerId).toBeNull()
+    expect(next.payments).toEqual([])
   })
 
   it('añade un ítem sin asignar', () => {
@@ -95,12 +95,34 @@ describe('billReducer', () => {
     expect(billReducer(withExtra, { type: 'REMOVE_EXTRA', extraId }).extras).toEqual([])
   })
 
-  it('fija y quita el pagador', () => {
+  it('registra un pago y lo sustituye si se repite el comensal', () => {
     const bill = makeBill({ diners: [makeDiner('ana', 0)] })
-    const withPayer = billReducer(bill, { type: 'SET_PAYER', dinerId: 'ana' })
+    const withPayment = billReducer(bill, { type: 'SET_PAYMENT', dinerId: 'ana', amount: 3000 })
+    const corrected = billReducer(withPayment, {
+      type: 'SET_PAYMENT',
+      dinerId: 'ana',
+      amount: 2500,
+    })
 
-    expect(withPayer.payerId).toBe('ana')
-    expect(billReducer(withPayer, { type: 'SET_PAYER', dinerId: null }).payerId).toBeNull()
+    expect(corrected.payments).toEqual([{ dinerId: 'ana', amount: 2500 }])
+  })
+
+  it('un pago de cero borra el pago', () => {
+    const bill = makeBill({ diners: [makeDiner('ana', 0)] })
+    const withPayment = billReducer(bill, { type: 'SET_PAYMENT', dinerId: 'ana', amount: 3000 })
+
+    expect(
+      billReducer(withPayment, { type: 'SET_PAYMENT', dinerId: 'ana', amount: 0 }).payments,
+    ).toEqual([])
+  })
+
+  it('borra todos los pagos', () => {
+    const bill = makeBill({
+      diners: [makeDiner('ana', 0)],
+      payments: [{ dinerId: 'ana', amount: 100 }],
+    })
+
+    expect(billReducer(bill, { type: 'CLEAR_PAYMENTS' }).payments).toEqual([])
   })
 
   it('no muta la cuenta original', () => {

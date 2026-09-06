@@ -1,4 +1,5 @@
 import { type Cents, distribute } from '@/core/money'
+import { settle } from '@/core/settle'
 import type { Bill, Debt, DinerSplit, Item, SplitResult, Warning } from '@/core/types'
 
 /** Weight per diner for one item, in the diner order of `bill.diners`. */
@@ -98,18 +99,12 @@ export function computeSplit(bill: Bill): SplitResult {
     }
   }
 
-  const debts: Debt[] = []
-  if (bill.payerId !== null) {
-    const payerId = bill.payerId
-    for (const share of perDiner) {
-      if (share.dinerId === payerId || share.total === 0) continue
-      debts.push(
-        share.total > 0
-          ? { from: share.dinerId, to: payerId, amount: share.total }
-          : { from: payerId, to: share.dinerId, amount: -share.total },
-      )
-    }
+  const paidTotal = bill.payments.reduce((sum, payment) => sum + payment.amount, 0)
+  const debts: Debt[] = settle(perDiner, bill.payments)
+
+  if (bill.payments.length > 0 && paidTotal !== billTotal) {
+    warnings.push({ kind: 'payments-mismatch', paid: paidTotal, expected: billTotal })
   }
 
-  return { perDiner, billTotal, unassignedTotal, debts, warnings }
+  return { perDiner, billTotal, unassignedTotal, paidTotal, debts, warnings }
 }
