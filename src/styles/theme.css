@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f7f5ef;
+  --color-paper-sunk: #efece3;
+  --color-ink: #14110c;
+  --color-ink-soft: #6b6559;
+  --color-ink-faint: #b9b2a1;
+  --color-rule: #cdc6b5;
+  --color-accent: #b3402b;
+  --color-credit: #2f6f4f;
+
+  --font-receipt: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --radius-ticket: 0.125rem;
+
+  --text-ticket-xs: 0.625rem;
+  --text-ticket-sm: 0.75rem;
+  --text-ticket-base: 0.8125rem;
+  --text-ticket-lg: 0.9375rem;
+  --text-ticket-xl: 1.25rem;
+
+  --tracking-ticket: 0.08em;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-paper);
+    color-scheme: light;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-receipt);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Tabular figures keep price columns aligned. Non-negotiable in a money UI. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
