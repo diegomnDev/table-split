@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>table-split</title>
   <rect width="512" height="512" fill="#14110c"/>
   <g fill="#f7f5ef">
     <path d="M92 128 L236 128 L236 128 L236 160 L222 160 L222 192 L236 192 L236 224 L222 224 L222 256 L236 256 L236 288 L222 288 L222 320 L236 320 L236 352 L222 352 L222 384 L236 384 L92 384 Z"/>

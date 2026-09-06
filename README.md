@@ -3,6 +3,9 @@
 Divide la cuenta del restaurante entre comensales. Funciona sin conexión, no
 necesita registro y no envía datos a ningún sitio: todo vive en el navegador.
 
+No hay cuentas de usuario, ni servidor que guarde nada, ni cookies. Cada cuenta
+vive en el `localStorage` del navegador de quien la crea.
+
 ## Desarrollo
 
 ```bash
@@ -87,3 +90,15 @@ consentimiento.
 
 Vercel. Los pasos completos, con variables de entorno y comprobaciones, están en
 `docs/despliegue-vercel.md`.
+
+## Licencia
+
+MIT. Ver [LICENSE](LICENSE).
+
+Se publica tal cual, sin garantía. Divide cuentas de cena, no lleves con esto la
+contabilidad de nadie.
+
+## Avisos de seguridad
+
+En [SECURITY.md](SECURITY.md). Para un fallo explotable, correo antes que issue
+pública.

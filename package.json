@@ -1,7 +1,7 @@
 {
   "name": "table-split",
   "version": "0.1.0",
-  "description": "",
+  "description": "Divide la cuenta del restaurante entre comensales. Funciona sin conexión y sin registro.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
@@ -18,7 +18,7 @@
   },
   "keywords": [],
   "type": "module",
-  "private": "true",
+  "private": true,
   "dependencies": {
     "nanoid": "^6.0.1",
     "react": "^19.2.8",
@@ -43,5 +43,7 @@
     "vite": "^8.2.2",
     "vite-plugin-pwa": "^1.3.0",
     "vitest": "^5.0.0"
-  }
+  },
+  "license": "MIT",
+  "author": "DiegoMN"
 }
