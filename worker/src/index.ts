@@ -11,11 +11,16 @@ export type Env = {
   GEMINI_API_KEY: string
   /** Exact origin allowed to call this Worker. Never "*". */
   ALLOWED_ORIGIN: string
-  /** Optional override, e.g. when a cheaper or newer model appears. */
+  /** Optional override; it is tried first, then the fallbacks. */
   GEMINI_MODEL?: string
 }
 
-const DEFAULT_MODEL = 'gemini-3.8-flash'
+/**
+ * Tried in order. The newest Flash model is deliberately not first: on
+ * 2026-09-06 gemini-3.8-flash answered 503 "high demand" five times in a row
+ * while 3.7 answered immediately. A busy model must not become a failed scan.
+ */
+const MODELS = ['gemini-3.7-flash', 'gemini-2.5-flash']
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 
@@ -105,47 +110,68 @@ export default {
       return json({ error: 'La foto pesa demasiado. Máximo 5 MB.' }, 413, env)
     }
 
-    const model = env.GEMINI_MODEL ?? DEFAULT_MODEL
+    const models = env.GEMINI_MODEL
+      ? [env.GEMINI_MODEL, ...MODELS.filter((model) => model !== env.GEMINI_MODEL)]
+      : MODELS
     const bytes = new Uint8Array(await image.arrayBuffer())
-
-    let upstream: Response
-    try {
-      upstream = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    const body = JSON.stringify({
+      contents: [
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': env.GEMINI_API_KEY,
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  { text: PROMPT },
-                  { inline_data: { mime_type: image.type, data: toBase64(bytes) } },
-                ],
-              },
-            ],
-            generationConfig: {
-              responseMimeType: 'application/json',
-              responseSchema: RESPONSE_SCHEMA,
-            },
-          }),
+          parts: [
+            { text: PROMPT },
+            { inline_data: { mime_type: image.type, data: toBase64(bytes) } },
+          ],
         },
-      )
-    } catch {
-      return json({ error: 'No se pudo contactar con el servicio de lectura.' }, 502, env)
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        responseSchema: RESPONSE_SCHEMA,
+      },
+    })
+
+    let upstream: Response | null = null
+    let lastStatus = 0
+
+    for (const model of models) {
+      let attempt: Response
+      try {
+        attempt = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-goog-api-key': env.GEMINI_API_KEY,
+            },
+            body,
+          },
+        )
+      } catch {
+        return json({ error: 'No se pudo contactar con el servicio de lectura.' }, 502, env)
+      }
+
+      if (attempt.ok) {
+        upstream = attempt
+        break
+      }
+
+      // The upstream body can carry quota details and echoes of the request.
+      // Log it for the operator; never hand it to the browser.
+      lastStatus = attempt.status
+      const detail = await attempt.text().catch(() => '<cuerpo ilegible>')
+      console.error('gemini upstream error', model, attempt.status, detail)
+
+      // Only a busy or rate-limited model is worth retrying somewhere else.
+      if (lastStatus !== 503 && lastStatus !== 429) break
     }
 
-    if (!upstream.ok) {
-      // The upstream body can contain quota details and request echoes. Log it
-      // for the operator; never hand it to the browser.
-      console.error('gemini upstream error', upstream.status, await upstream.text())
-      const message =
-        upstream.status === 429
-          ? 'Se ha agotado la cuota gratuita por ahora. Mete los ítems a mano.'
-          : 'El servicio de lectura ha fallado. Mete los ítems a mano.'
+    if (!upstream) {
+      let message = 'El servicio de lectura ha fallado. Mete los ítems a mano.'
+      if (lastStatus === 429) {
+        message = 'Se ha agotado la cuota gratuita por ahora. Mete los ítems a mano.'
+      } else if (lastStatus === 503) {
+        message = 'El servicio de lectura está saturado. Prueba otra vez en un momento.'
+      }
       return json({ error: message }, 502, env)
     }
 

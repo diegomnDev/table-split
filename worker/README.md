@@ -19,6 +19,30 @@ Then edit `ALLOWED_ORIGIN` in `wrangler.toml` to the exact origin of the
 deployed app and redeploy, and set `VITE_SCAN_ENDPOINT` in the app's build
 environment to the Worker URL.
 
+## Models
+
+Tried in order: `gemini-3.7-flash`, then `gemini-2.5-flash`. Set `GEMINI_MODEL`
+to put another one first; the rest stay as fallbacks.
+
+`gemini-3.8-flash` is deliberately not the default. Measured on 2026-09-06 it
+answered `503 "This model is currently experiencing high demand"` five times in
+a row while 3.7 answered on the first try. A busy model must not become a
+failed scan.
+
+Only `503` and `429` move on to the next model. Any other upstream error stops
+immediately: retrying a malformed request elsewhere just burns quota.
+
+## Verified behaviour
+
+Against a generated ticket with six lines, `gemini-3.7-flash` returned all six
+correctly, divided the line totals by their quantity (`2 CROQUETAS 12,00` came
+back as quantity 2 at 600 cents each), and left out `SUBTOTAL`, `IVA` and
+`TOTAL` as instructed. The extracted lines summed to 77,70 €, matching the
+ticket's subtotal exactly. Cost: 1,844 tokens for that one image.
+
+A real crumpled thermal ticket is a harder input, which is why every detected
+line still goes through the review sheet before entering a bill.
+
 ## Cost
 
 Both halves are free and neither asks for a card:

@@ -6,10 +6,15 @@ const env: Env = {
   ALLOWED_ORIGIN: 'https://table-spit.example',
 }
 
-function imageRequest(type = 'image/jpeg', bytes = new Uint8Array([1, 2, 3])) {
+function imageRequest(type = 'image/jpeg', content = 'imagen') {
   const form = new FormData()
-  form.set('image', new File([bytes as BlobPart], 'ticket.jpg', { type }))
+  form.set('image', new File([content], 'ticket.jpg', { type }))
   return new Request('https://scan.example/', { method: 'POST', body: form })
+}
+
+/** A Response body can only be read once, so every call gets a fresh one. */
+function always(make: () => Response) {
+  return vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(make()))
 }
 
 afterEach(() => {
@@ -51,7 +56,7 @@ describe('scan worker', () => {
 
   it('rechaza una imagen de más de 5 MB', async () => {
     const response = await worker.fetch(
-      imageRequest('image/jpeg', new Uint8Array(5 * 1024 * 1024 + 1)),
+      imageRequest('image/jpeg', 'x'.repeat(5 * 1024 * 1024 + 1)),
       env,
     )
 
@@ -107,8 +112,9 @@ describe('scan worker', () => {
 
   it('no filtra el cuerpo de error de arriba', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('API key secreto-que-no-debe-salir inválida, cuota agotada', { status: 400 }),
+    always(
+      () =>
+        new Response('API key secreto-que-no-debe-salir inválida, cuota agotada', { status: 400 }),
     )
 
     const response = await worker.fetch(imageRequest(), env)
@@ -121,11 +127,79 @@ describe('scan worker', () => {
 
   it('traduce el 429 a un mensaje sobre la cuota gratuita', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('rate limited', { status: 429 }))
+    always(() => new Response('rate limited', { status: 429 }))
 
     const response = await worker.fetch(imageRequest(), env)
 
     expect(response.status).toBe(502)
     expect(await response.text()).toMatch(/cuota gratuita/i)
+  })
+
+  it('cae al modelo de reserva cuando el primero está saturado', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const fetchSpy = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(new Response('high demand', { status: 503 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                content: {
+                  parts: [
+                    {
+                      text: JSON.stringify({
+                        items: [{ name: 'Pulpo', quantity: 1, unitPriceCents: 1980 }],
+                      }),
+                    },
+                  ],
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        ),
+      )
+
+    const response = await worker.fetch(imageRequest(), env)
+
+    expect(response.status).toBe(200)
+    expect(fetchSpy).toHaveBeenCalledTimes(2)
+    expect(fetchSpy.mock.calls[0]?.[0]).toContain('gemini-3.7-flash')
+    expect(fetchSpy.mock.calls[1]?.[0]).toContain('gemini-2.5-flash')
+  })
+
+  it('si todos los modelos están saturados, lo dice sin culpar al usuario', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    always(() => new Response('high demand', { status: 503 }))
+
+    const response = await worker.fetch(imageRequest(), env)
+
+    expect(response.status).toBe(502)
+    expect(await response.text()).toMatch(/saturado/i)
+  })
+
+  it('un error que no es transitorio no prueba otro modelo', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const fetchSpy = always(() => new Response('bad request', { status: 400 }))
+
+    await worker.fetch(imageRequest(), env)
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+  })
+
+  it('el modelo de la variable de entorno se prueba primero', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(
+        JSON.stringify({ candidates: [{ content: { parts: [{ text: '{"items":[]}' }] } }] }),
+        {
+          status: 200,
+        },
+      ),
+    )
+
+    await worker.fetch(imageRequest(), { ...env, GEMINI_MODEL: 'gemini-3.8-flash' })
+
+    expect(fetchSpy.mock.calls[0]?.[0]).toContain('gemini-3.8-flash')
   })
 })
