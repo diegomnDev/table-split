@@ -28,6 +28,8 @@ npm run dev
 - `src/screens/`, `src/components/` — interfaz.
 - `src/styles/theme.css` — todos los tokens visuales. Reestilizar la app es
   editar este archivo.
+- `api/scan.ts` — la función que guarda la clave de Gemini y lee la foto.
+- `assets/icon.svg` — origen único del logo, los iconos y el favicon.
 
 Los importes son siempre enteros de céntimos. Los floats no representan dinero.
 
@@ -37,7 +39,7 @@ Los importes son siempre enteros de céntimos. Los floats no representan dinero.
 - Extras: propina, cubierto y descuentos, a partes iguales entre todos.
 - Varios pagadores: registras quién puso cuánto y la app calcula las transferencias que saldan la cuenta.
 - Compartir: copiar el resumen como texto pegable, o un enlace que lleva la cuenta entera dentro.
-- Escanear el ticket con la cámara, si hay un proxy configurado (ver `worker/`).
+- Escanear el ticket con la cámara, si el despliegue tiene clave de Gemini.
 - Funciona sin conexión salvo el escaneo, que necesita red por definición.
 
 ## Reglas de reparto
@@ -61,9 +63,11 @@ Los importes son siempre enteros de céntimos. Los floats no representan dinero.
 ## Escanear el ticket
 
 Opcional y a coste cero. La clave de la API no puede vivir en el navegador, así
-que la guarda un Cloudflare Worker que hace de proxy: ver `worker/README.md`.
-Sin `VITE_SCAN_ENDPOINT` configurado, el botón no aparece y la app funciona
-igual. Copia `.env.example` a `.env` para configurarlo.
+que la guarda una función en `api/scan.ts`, que se despliega en el mismo dominio
+que la app. Al ser mismo origen no hay CORS que configurar.
+
+Sin `VITE_SCAN_ENDPOINT` el botón no aparece y la app funciona igual. Copia
+`.env.example` a `.env` para activarlo en local.
 
 ## Legal
 
@@ -81,4 +85,5 @@ consentimiento.
 
 ## Despliegue
 
-Salida estática. En Cloudflare Pages: build `npm run build`, directorio `dist`.
+Vercel. Los pasos completos, con variables de entorno y comprobaciones, están en
+`docs/despliegue-vercel.md`.

@@ -63,9 +63,9 @@ export function LegalScreen() {
         {scanEnabled ? (
           <p>
             Si usas <strong>escanear ticket</strong>, esa foto concreta sale de tu dispositivo: va a
-            un servidor intermedio en Cloudflare y de ahí a la API de Gemini de Google, que devuelve
-            las líneas detectadas. Ni el servidor intermedio ni esta app guardan la foto: se usa
-            para esa lectura y se descarta. No fotografíes nada que no quieras enviar.
+            una función alojada en Vercel, en Fráncfort, y de ahí a la API de Gemini de Google, que
+            devuelve las líneas detectadas. Ni esa función ni esta app guardan la foto: se usa para
+            esa lectura y se descarta. No fotografíes nada que no quieras enviar.
           </p>
         ) : (
           <p>
@@ -114,14 +114,14 @@ export function LegalScreen() {
       <Section title="Encargados y transferencias">
         {scanEnabled ? (
           <p>
-            Cloudflare aloja la página y el servidor intermedio del escaneo. Google presta el
-            servicio de lectura de la foto. Ambos actúan como encargados del tratamiento, con sus
-            contratos y garantías para transferencias fuera del Espacio Económico Europeo.
+            Vercel aloja la página y la función del escaneo. Google presta el servicio de lectura de
+            la foto. Ambos actúan como encargados del tratamiento, con sus contratos y garantías
+            para transferencias fuera del Espacio Económico Europeo.
           </p>
         ) : (
           <p>
-            Cloudflare aloja la página, y es el único encargado del tratamiento que interviene.
-            Ningún otro proveedor recibe nada.
+            Vercel aloja la página, y es el único encargado del tratamiento que interviene. Ningún
+            otro proveedor recibe nada.
           </p>
         )}
       </Section>

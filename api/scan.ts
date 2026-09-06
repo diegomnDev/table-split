@@ -1,19 +1,14 @@
 /**
- * table-split scan proxy.
+ * table-split scan proxy, as a Vercel Function.
  *
  * Exists for one reason: the Gemini API key cannot live in the browser. This
- * Worker holds the key, accepts an image, and returns structured ticket lines.
- * It never returns the key, the upstream error body, or the raw model output.
+ * function holds the key, accepts an image, and returns structured ticket
+ * lines. It never returns the key, the upstream error body, or the raw model
+ * output.
+ *
+ * It is served from the app's own origin, so there is no CORS to configure and
+ * no allowed-origin list to keep in sync.
  */
-
-export type Env = {
-  /** Set with: npx wrangler secret put GEMINI_API_KEY */
-  GEMINI_API_KEY: string
-  /** Exact origin allowed to call this Worker. Never "*". */
-  ALLOWED_ORIGIN: string
-  /** Optional override; it is tried first, then the fallbacks. */
-  GEMINI_MODEL?: string
-}
 
 /**
  * Tried in order, all verified against the live API on 2026-09-06.
@@ -27,6 +22,7 @@ export type Env = {
  * returns 404 "no longer available to new users". Listed does not mean usable.
  */
 const MODELS = ['gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash']
+
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 
@@ -59,20 +55,10 @@ const RESPONSE_SCHEMA = {
   required: ['items'],
 }
 
-function corsHeaders(env: Env): Record<string, string> {
-  return {
-    'Access-Control-Allow-Origin': env.ALLOWED_ORIGIN,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Max-Age': '86400',
-    Vary: 'Origin',
-  }
-}
-
-function json(body: unknown, status: number, env: Env): Response {
+function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders(env) },
+    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
   })
 }
 
@@ -87,13 +73,15 @@ function toBase64(bytes: Uint8Array): string {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    if (request.method === 'OPTIONS') {
-      return new Response(null, { status: 204, headers: corsHeaders(env) })
+  async fetch(request: Request): Promise<Response> {
+    if (request.method !== 'POST') {
+      return json({ error: 'Método no permitido.' }, 405)
     }
 
-    if (request.method !== 'POST') {
-      return json({ error: 'Método no permitido.' }, 405, env)
+    const apiKey = process.env.GEMINI_API_KEY
+    if (!apiKey) {
+      console.error('GEMINI_API_KEY is not set')
+      return json({ error: 'El escaneo no está configurado en este despliegue.' }, 503)
     }
 
     let image: File
@@ -101,24 +89,26 @@ export default {
       const form = await request.formData()
       const field = form.get('image')
       if (!(field instanceof File)) {
-        return json({ error: 'Falta la imagen.' }, 400, env)
+        return json({ error: 'Falta la imagen.' }, 400)
       }
       image = field
     } catch {
-      return json({ error: 'No se pudo leer la imagen.' }, 400, env)
+      return json({ error: 'No se pudo leer la imagen.' }, 400)
     }
 
     if (!ALLOWED_TYPES.has(image.type)) {
-      return json({ error: 'Ese formato de imagen no vale.' }, 415, env)
+      return json({ error: 'Ese formato de imagen no vale.' }, 415)
     }
 
     if (image.size > MAX_IMAGE_BYTES) {
-      return json({ error: 'La foto pesa demasiado. Máximo 5 MB.' }, 413, env)
+      return json({ error: 'La foto pesa demasiado. Máximo 5 MB.' }, 413)
     }
 
-    const models = env.GEMINI_MODEL
-      ? [env.GEMINI_MODEL, ...MODELS.filter((model) => model !== env.GEMINI_MODEL)]
+    const configured = process.env.GEMINI_MODEL
+    const models = configured
+      ? [configured, ...MODELS.filter((model) => model !== configured)]
       : MODELS
+
     const bytes = new Uint8Array(await image.arrayBuffer())
     const body = JSON.stringify({
       contents: [
@@ -145,15 +135,12 @@ export default {
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
           {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': env.GEMINI_API_KEY,
-            },
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
             body,
           },
         )
       } catch {
-        return json({ error: 'No se pudo contactar con el servicio de lectura.' }, 502, env)
+        return json({ error: 'No se pudo contactar con el servicio de lectura.' }, 502)
       }
 
       if (attempt.ok) {
@@ -178,7 +165,7 @@ export default {
       } else if (lastStatus === 503) {
         message = 'El servicio de lectura está saturado. Prueba otra vez en un momento.'
       }
-      return json({ error: message }, 502, env)
+      return json({ error: message }, 502)
     }
 
     let text: string
@@ -188,14 +175,13 @@ export default {
       }
       text = payload.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
     } catch {
-      return json({ error: 'Respuesta ilegible del servicio de lectura.' }, 502, env)
+      return json({ error: 'Respuesta ilegible del servicio de lectura.' }, 502)
     }
 
     try {
-      const parsed = JSON.parse(text) as unknown
-      return json(parsed, 200, env)
+      return json(JSON.parse(text) as unknown, 200)
     } catch {
-      return json({ error: 'El ticket no se ha podido interpretar.' }, 502, env)
+      return json({ error: 'El ticket no se ha podido interpretar.' }, 502)
     }
   },
 }

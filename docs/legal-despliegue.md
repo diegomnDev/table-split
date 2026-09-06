@@ -38,8 +38,8 @@ Lo que sí sobrevive a la excepción es el **deber de informar**: la
 mantiene que hay que contarlo, por ejemplo en la política de privacidad. Está
 en `/legal`.
 
-**Esto se rompe en el momento en que añadas analítica**, aunque sea Cloudflare
-Web Analytics o Plausible. Ahí ya hay que evaluar consentimiento. Hoy la app no
+**Esto se rompe en el momento en que añadas analítica**, incluida Vercel Web
+Analytics o Speed Insights. Ahí ya hay que evaluar consentimiento. Hoy la app no
 lleva ninguna, y ese es el motivo de que no haya banner.
 
 El Reglamento ePrivacy que llevaba años en trámite fue **retirado por la
@@ -52,10 +52,10 @@ Aunque los datos de la cuenta no salgan del dispositivo, hay dos tratamientos
 reales en los que decides tú los fines y los medios, y por tanto eres
 responsable del tratamiento:
 
-1. **El alojamiento.** Cloudflare registra la IP de cada visita. Una IP es dato
+1. **El alojamiento.** Vercel registra la IP de cada visita. Una IP es dato
    personal.
-2. **El escaneo del ticket.** La foto sale del dispositivo, pasa por tu Worker
-   y llega a Google. Puede contener datos personales.
+2. **El escaneo del ticket.** La foto sale del dispositivo, pasa por tu función
+   en Vercel y llega a Google. Puede contener datos personales.
 
 Sin esos dos, el caso sería mucho más flojo. Con ellos, la política es
 obligatoria.
@@ -118,7 +118,8 @@ almohadilla. El fragmento no se envía en la petición HTTP, así que no aparece
 los registros de acceso del alojamiento.
 
 Estuvo en la ruta durante parte del desarrollo, y ahí sí habría acabado en los
-logs de Cloudflare con nombres e importes dentro. Corregido antes de desplegar.
+registros de acceso de Vercel con nombres e importes dentro. Corregido antes de
+desplegar.
 
 ## Checklist antes de publicar
 
@@ -127,12 +128,21 @@ logs de Cloudflare con nombres e importes dentro. Corregido antes de desplegar.
 - [ ] Abrir `/legal` en la app desplegada y comprobar que no sale el aviso rojo.
 - [ ] Confirmar que no se ha añadido analítica de ningún tipo. Si se añade, hay
       que replantear el consentimiento.
-- [ ] Poner `ALLOWED_ORIGIN` del Worker con el dominio real, no `localhost`.
-- [ ] Aceptar el DPA de Cloudflare en el panel de la cuenta.
+- [ ] Comprobar que `vercel.json` mantiene `"regions": ["fra1"]`, para que la
+      función procese la foto en Fráncfort y no fuera del EEE.
+- [ ] Aceptar el DPA de Vercel en el panel de la cuenta.
+- [ ] No activar Vercel Web Analytics ni Speed Insights.
 - [ ] Comprobar que el escaneo enseña el aviso de IA antes de subir la foto.
 - [ ] Decidir si el escaneo se despliega o no: sin `VITE_SCAN_ENDPOINT`, no sale
       ninguna imagen del dispositivo y la superficie legal se reduce a la IP del
       alojamiento.
+
+## Dónde se procesa
+
+`vercel.json` fija `"regions": ["fra1"]`, es decir Fráncfort. Sin eso, la
+función podría ejecutarse en cualquier región y la foto saldría del EEE antes
+incluso de llegar a Google. Es una línea de configuración con consecuencias
+legales, no una preferencia de latencia.
 
 ## Fuentes
 
