@@ -11,6 +11,12 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      workbox: {
+        // registerType 'autoUpdate' already turns on skipWaiting, clientsClaim
+        // and cleanupOutdatedCaches, so they are not repeated here.
+        // The scan endpoint must never be answered from the cache.
+        navigateFallbackDenylist: [/^\/api\//],
+      },
       manifest: {
         name: 'table-split',
         short_name: 'table-split',
