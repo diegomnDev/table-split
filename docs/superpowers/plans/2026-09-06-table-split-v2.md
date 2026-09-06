@@ -33,7 +33,8 @@ Replaces `payerId: string | null` with a list of payments, and computes who pays
   - `type Payment = { dinerId: string; amount: Cents }`
   - `Bill.payments: Payment[]` (replaces `Bill.payerId`)
   - `settle(perDiner: DinerSplit[], payments: Payment[]): Debt[]`
-  - `SCHEMA_VERSION = 2` with a migration from 1.
+  - `SCHEMA_VERSION` stays at 1: nothing is deployed, so there is no stored
+    data to migrate.
 
 - [ ] **Step 1: Write the failing settlement tests**
 

@@ -227,15 +227,16 @@ type Warning =
 
 ## Persistence
 
-- Single `localStorage` key: `tablesplit:bills`. The pre-rename key
-  `tablespit:bills` is still read as a fallback, and retired on the next save,
-  so the rename costs nobody the bills already on their phone.
+- Single `localStorage` key: `tablesplit:bills`.
 - Stored shape: `{ schemaVersion: number, bills: Bill[] }`.
 - On read: parse, then validate with Zod. On validation failure, start empty and
   surface a non-blocking notice — never crash to a blank screen. The JSON was
   written by a previous version of this same app, which makes it exactly as
   untrustworthy as a third-party API.
-- On schema version mismatch, run migrations in order.
+- `schemaVersion` is written but nothing migrates yet: there is only one
+  schema and the app has never been deployed, so there is no old data anywhere.
+  Data written by a *future* version is refused and the app starts empty.
+  Migrations go in when a second schema actually exists.
 - Writes are debounced ~300 ms, not per keystroke.
 - Known limitation, stated in the UI: clearing browser data or using a private
   window loses saved bills. v1 has no other copy.
