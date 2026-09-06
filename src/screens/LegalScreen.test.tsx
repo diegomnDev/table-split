@@ -49,6 +49,18 @@ describe('LegalScreen', () => {
   })
 })
 
+describe('LegalScreen sin escaneo', () => {
+  it('no declara a Google como encargado si el escaneo está apagado', () => {
+    renderLegal()
+
+    expect(screen.getByText(/escaneo de tickets está desactivado/i)).toBeInTheDocument()
+    expect(screen.queryByText(/Google presta el servicio/i)).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: /inteligencia artificial/i }),
+    ).not.toBeInTheDocument()
+  })
+})
+
 describe('ownerIsConfigured', () => {
   it('es falso mientras quede un marcador', () => {
     expect(ownerIsConfigured({ name: 'Ana', email: PLACEHOLDER })).toBe(false)

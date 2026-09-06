@@ -112,20 +112,29 @@ export function LegalScreen() {
       </Section>
 
       <Section title="Encargados y transferencias">
-        <p>
-          Cloudflare aloja la página y, si el escaneo está activo, el servidor intermedio. Google
-          presta el servicio de lectura de la foto. Ambos actúan como encargados del tratamiento,
-          con sus contratos y garantías para transferencias fuera del Espacio Económico Europeo.
-        </p>
+        {scanEnabled ? (
+          <p>
+            Cloudflare aloja la página y el servidor intermedio del escaneo. Google presta el
+            servicio de lectura de la foto. Ambos actúan como encargados del tratamiento, con sus
+            contratos y garantías para transferencias fuera del Espacio Económico Europeo.
+          </p>
+        ) : (
+          <p>
+            Cloudflare aloja la página, y es el único encargado del tratamiento que interviene.
+            Ningún otro proveedor recibe nada.
+          </p>
+        )}
       </Section>
 
-      <Section title="Inteligencia artificial">
-        <p>
-          La lectura del ticket la hace un modelo de inteligencia artificial. Puede equivocarse, y
-          por eso la app te enseña siempre lo que ha leído para que lo revises antes de meterlo en
-          la cuenta. Ninguna decisión se toma automáticamente sobre ti.
-        </p>
-      </Section>
+      {scanEnabled && (
+        <Section title="Inteligencia artificial">
+          <p>
+            La lectura del ticket la hace un modelo de inteligencia artificial. Puede equivocarse, y
+            por eso la app te enseña siempre lo que ha leído para que lo revises antes de meterlo en
+            la cuenta. Ninguna decisión se toma automáticamente sobre ti.
+          </p>
+        </Section>
+      )}
 
       <Section title="Cambios">
         <p>
