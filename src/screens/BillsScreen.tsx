@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { Amount } from '@/components/ui/amount'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 import { TextInput } from '@/components/ui/text-input'
 import { computeSplit } from '@/core/split'
 import { useBills } from '@/state/use-bills'
@@ -19,7 +20,10 @@ export function BillsScreen() {
   return (
     <main className="mx-auto max-w-md px-4 pb-8">
       <header className="border-b-2 border-dashed border-ink-faint py-4 text-center">
-        <h1 className="text-ticket-lg tracking-ticket uppercase">table-split</h1>
+        <h1 className="flex items-center justify-center gap-2 text-ticket-lg tracking-ticket uppercase">
+          <Logo className="h-5 w-auto text-ink" />
+          table-split
+        </h1>
         <p className="text-ticket-xs tracking-ticket uppercase text-ink-soft">
           Divide la cuenta sin calculadora
         </p>
