@@ -19,7 +19,7 @@ export function BillsScreen() {
   return (
     <main className="mx-auto max-w-md px-4 pb-8">
       <header className="border-b-2 border-dashed border-ink-faint py-4 text-center">
-        <h1 className="text-ticket-lg tracking-ticket uppercase">table-spit</h1>
+        <h1 className="text-ticket-lg tracking-ticket uppercase">table-split</h1>
         <p className="text-ticket-xs tracking-ticket uppercase text-ink-soft">
           Divide la cuenta sin calculadora
         </p>

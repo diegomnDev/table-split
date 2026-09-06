@@ -3,7 +3,7 @@ import worker, { type Env } from './index'
 
 const env: Env = {
   GEMINI_API_KEY: 'secreto-que-no-debe-salir',
-  ALLOWED_ORIGIN: 'https://table-spit.example',
+  ALLOWED_ORIGIN: 'https://table-split.example',
 }
 
 function imageRequest(type = 'image/jpeg', content = 'imagen') {

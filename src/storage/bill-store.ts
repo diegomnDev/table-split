@@ -1,7 +1,11 @@
 import type { Bill } from '@/core/types'
 import { storedPayloadSchema, storedPayloadV1Schema } from '@/storage/schema'
 
-export const STORAGE_KEY = 'tablespit:bills'
+export const STORAGE_KEY = 'tablesplit:bills'
+
+/** The key used before the project was renamed. Read once, then retired, so a
+ * rename never costs anyone the bills already on their phone. */
+export const LEGACY_STORAGE_KEY = 'tablespit:bills'
 export const SCHEMA_VERSION = 2
 
 export type LoadResult = {
@@ -32,7 +36,7 @@ export function loadBills(storage: Storage | null = defaultStorage()): LoadResul
 
   let raw: string | null = null
   try {
-    raw = storage.getItem(STORAGE_KEY)
+    raw = storage.getItem(STORAGE_KEY) ?? storage.getItem(LEGACY_STORAGE_KEY)
   } catch {
     return { bills: [], recovered: true }
   }
@@ -81,6 +85,7 @@ export function saveBills(bills: Bill[], storage: Storage | null = defaultStorag
 
   try {
     storage.setItem(STORAGE_KEY, JSON.stringify({ schemaVersion: SCHEMA_VERSION, bills }))
+    storage.removeItem(LEGACY_STORAGE_KEY)
   } catch {
     // Quota exceeded or storage disabled. Losing a write is survivable;
     // crashing mid-dinner is not.

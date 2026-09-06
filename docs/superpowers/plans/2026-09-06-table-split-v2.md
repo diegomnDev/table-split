@@ -1,4 +1,4 @@
-# table-spit v2 Implementation Plan
+# table-split v2 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** Unchanged from v1, plus a Cloudflare Worker (`worker/`) deployed separately.
 
-**Spec:** `docs/superpowers/specs/2026-09-06-table-spit-design.md` (the "v2 scope" section)
+**Spec:** `docs/superpowers/specs/2026-09-06-table-split-design.md` (the "v2 scope" section)
 
 ## Global Constraints
 

@@ -1,5 +1,5 @@
 /**
- * table-spit scan proxy.
+ * table-split scan proxy.
  *
  * Exists for one reason: the Gemini API key cannot live in the browser. This
  * Worker holds the key, accepts an image, and returns structured ticket lines.

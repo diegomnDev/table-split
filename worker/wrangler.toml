@@ -1,4 +1,4 @@
-name = "table-spit-scan"
+name = "table-split-scan"
 main = "src/index.ts"
 compatibility_date = "2026-09-06"
 

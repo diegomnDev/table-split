@@ -1,4 +1,4 @@
-# table-spit v1 Implementation Plan
+# table-split v1 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -8,7 +8,7 @@
 
 **Tech Stack:** Vite 8.2.2, React 19.2.8, TypeScript 7.0.2, Tailwind CSS 4.3.3, Biome 2.5.12, Vitest 5.0.0, fast-check 4.9.0, react-router 8.3.1, Zod 4.5.4, nanoid 6.0.1, vite-plugin-pwa 1.3.0.
 
-**Spec:** `docs/superpowers/specs/2026-09-06-table-spit-design.md`
+**Spec:** `docs/superpowers/specs/2026-09-06-table-split-design.md`
 
 ## Global Constraints
 
@@ -35,9 +35,9 @@
 - [ ] **Step 1: Create the project and install exact versions**
 
 ```bash
-cd /Users/diegomn/workspace/personal/table-spit
+cd /Users/diegomn/workspace/personal/table-split
 npm init -y
-npm pkg set name="table-spit" private=true type="module" version="0.1.0"
+npm pkg set name="table-split" private=true type="module" version="0.1.0"
 npm i react@19.2.8 react-dom@19.2.8 react-router@8.3.1 zod@4.5.4 nanoid@6.0.1
 npm i -D vite@8.2.2 @vitejs/plugin-react@6.1.1 typescript@7.0.2 \
   tailwindcss@4.3.3 @tailwindcss/vite@4.3.3 \
@@ -63,8 +63,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'table-spit',
-        short_name: 'table-spit',
+        name: 'table-split',
+        short_name: 'table-split',
         description: 'Divide la cuenta del restaurante sin calculadora',
         lang: 'es-ES',
         start_url: '/',
@@ -129,7 +129,7 @@ export default defineConfig({
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>table-spit</title>
+    <title>table-split</title>
   </head>
   <body>
     <div id="root"></div>
@@ -166,7 +166,7 @@ import '@testing-library/jest-dom/vitest'
 
 ```tsx
 export default function App() {
-  return <p className="p-4 font-receipt text-ink">table-spit</p>
+  return <p className="p-4 font-receipt text-ink">table-split</p>
 }
 ```
 
@@ -1131,7 +1131,7 @@ git commit -m "test(core): assert the reconciliation invariant with property-bas
 **Interfaces:**
 - Consumes: types from `@/core/types`, `zod`.
 - Produces:
-  - `STORAGE_KEY = 'tablespit:bills'`
+  - `STORAGE_KEY = 'tablesplit:bills'`
   - `SCHEMA_VERSION = 1`
   - `loadBills(storage?: Storage): { bills: Bill[]; recovered: boolean }`
   - `saveBills(bills: Bill[], storage?: Storage): void`
@@ -1271,7 +1271,7 @@ export type StoredPayload = z.infer<typeof storedPayloadSchema>
 import type { Bill } from '@/core/types'
 import { storedPayloadSchema } from '@/storage/schema'
 
-export const STORAGE_KEY = 'tablespit:bills'
+export const STORAGE_KEY = 'tablesplit:bills'
 export const SCHEMA_VERSION = 1
 
 export type LoadResult = {
@@ -2046,7 +2046,7 @@ export function BillsScreen() {
   return (
     <main className="mx-auto max-w-md px-4 pb-8">
       <header className="border-b-2 border-dashed border-ink-faint py-4 text-center">
-        <h1 className="text-ticket-lg tracking-ticket uppercase">table-spit</h1>
+        <h1 className="text-ticket-lg tracking-ticket uppercase">table-split</h1>
         <p className="text-ticket-xs tracking-ticket uppercase text-ink-soft">
           Divide la cuenta sin calculadora
         </p>
@@ -3220,7 +3220,7 @@ Then, in the browser: open the preview URL, confirm the app loads, open DevTools
 - [ ] **Step 6: Write `README.md`**
 
 ```markdown
-# table-spit
+# table-split
 
 Divide la cuenta del restaurante entre comensales. Funciona sin conexión, no
 necesita registro y no envía datos a ningún sitio: todo vive en el navegador.

@@ -1,4 +1,4 @@
-# table-spit
+# table-split
 
 Divide la cuenta del restaurante entre comensales. Funciona sin conexión, no
 necesita registro y no envía datos a ningún sitio: todo vive en el navegador.

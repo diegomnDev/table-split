@@ -1,4 +1,4 @@
-# table-spit scan proxy
+# table-split scan proxy
 
 A Cloudflare Worker that holds the Gemini API key and turns a photo of a
 restaurant ticket into structured line items.

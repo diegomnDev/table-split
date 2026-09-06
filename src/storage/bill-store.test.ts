@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { makeBill, makeDiner, makeItem } from '@/core/test-factories'
-import { loadBills, SCHEMA_VERSION, STORAGE_KEY, saveBills } from '@/storage/bill-store'
+import {
+  LEGACY_STORAGE_KEY,
+  loadBills,
+  SCHEMA_VERSION,
+  STORAGE_KEY,
+  saveBills,
+} from '@/storage/bill-store'
 
 describe('bill-store', () => {
   beforeEach(() => {
@@ -27,6 +33,41 @@ describe('bill-store', () => {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}')
 
     expect(raw.schemaVersion).toBe(SCHEMA_VERSION)
+  })
+
+  it('lee las cuentas guardadas bajo el nombre anterior del proyecto', () => {
+    const bill = makeBill({ title: 'Casa Paco' })
+    localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: SCHEMA_VERSION, bills: [bill] }),
+    )
+
+    expect(loadBills().bills).toEqual([bill])
+  })
+
+  it('al guardar retira la clave antigua', () => {
+    localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: SCHEMA_VERSION, bills: [] }),
+    )
+
+    saveBills([makeBill()])
+
+    expect(localStorage.getItem(LEGACY_STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull()
+  })
+
+  it('la clave nueva gana sobre la antigua', () => {
+    localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({ schemaVersion: SCHEMA_VERSION, bills: [makeBill({ title: 'Vieja' })] }),
+    )
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ schemaVersion: SCHEMA_VERSION, bills: [makeBill({ title: 'Nueva' })] }),
+    )
+
+    expect(loadBills().bills[0]?.title).toBe('Nueva')
   })
 
   it('arranca limpio y avisa si el JSON está corrupto', () => {

@@ -1,4 +1,4 @@
-# table-spit — Design
+# table-split — Design
 
 **Date:** 2026-09-06
 **Status:** Approved for implementation (v1); v2 scope defined, to be built after v1 ships.
@@ -9,7 +9,7 @@ Splitting a restaurant bill among friends is done today with a calculator, a
 notes app, or mental arithmetic. It is slow at the table, error-prone with
 shared dishes, and nobody can check the result afterwards.
 
-`table-spit` is a mobile-first web app that takes a bill, a list of diners, and
+`table-split` is a mobile-first web app that takes a bill, a list of diners, and
 who ate what, and produces an exact per-person amount. It works offline, stores
 nothing on a server, and costs nothing to run.
 
@@ -227,7 +227,9 @@ type Warning =
 
 ## Persistence
 
-- Single `localStorage` key: `tablespit:bills`.
+- Single `localStorage` key: `tablesplit:bills`. The pre-rename key
+  `tablespit:bills` is still read as a fallback, and retired on the next save,
+  so the rename costs nobody the bills already on their phone.
 - Stored shape: `{ schemaVersion: number, bills: Bill[] }`.
 - On read: parse, then validate with Zod. On validation failure, start empty and
   surface a non-blocking notice — never crash to a blank screen. The JSON was
@@ -347,5 +349,5 @@ revisiting:
    and redistribute.
 2. Extras split equally among all diners. Alternative: proportional to
    consumption, which arguably fits tipping better.
-3. The project name is `table-spit`, matching the directory. Likely intended
-   `table-split`.
+3. Resolved: the project is `table-split`. It was created as `table-spit`, a
+   typo; the code, the docs and the storage key were renamed on 2026-09-06.

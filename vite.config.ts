@@ -12,8 +12,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'table-spit',
-        short_name: 'table-spit',
+        name: 'table-split',
+        short_name: 'table-split',
         description: 'Divide la cuenta del restaurante sin calculadora',
         lang: 'es-ES',
         start_url: '/',
