@@ -13,7 +13,7 @@ gratuita, mete publicidad o añade analítica, todo lo de abajo cambia.
 | Banner de cookies | **No** | Nada que instalar. Justificado abajo |
 | Información sobre almacenamiento local | Sí | Sección en `/legal` |
 | Política de privacidad (RGPD art. 13) | Sí | `/legal` |
-| Identidad del responsable | Sí | `src/legal/owner.ts` — **pendiente de rellenar** |
+| Identidad del responsable | Sí | `src/legal/owner.ts` — rellenado |
 | Aviso legal LSSI-CE | Probablemente no | Se incluye igualmente lo esencial |
 | Transparencia de IA (RIA art. 50) | Sí | Aviso antes de subir la foto |
 | Accesibilidad (EAA) | Probablemente no | La app ya cumple lo básico |
@@ -122,8 +122,9 @@ logs de Cloudflare con nombres e importes dentro. Corregido antes de desplegar.
 
 ## Checklist antes de publicar
 
-- [ ] Rellenar `src/legal/owner.ts` con nombre real, correo que se lea y dominio.
-- [ ] Abrir `/legal` en la app desplegada y comprobar que ya no sale el aviso rojo.
+- [ ] Revisar `src/legal/owner.ts`: ahora pone el alias `DiegoMN`. Si alguien
+      ejerce sus derechos, la ley espera una identidad real, no un apodo.
+- [ ] Abrir `/legal` en la app desplegada y comprobar que no sale el aviso rojo.
 - [ ] Confirmar que no se ha añadido analítica de ningún tipo. Si se añade, hay
       que replantear el consentimiento.
 - [ ] Poner `ALLOWED_ORIGIN` del Worker con el dominio real, no `localhost`.

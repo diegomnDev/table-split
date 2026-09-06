@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import { ownerIsConfigured, PLACEHOLDER } from '@/legal/owner'
+import { OWNER, ownerIsConfigured, PLACEHOLDER } from '@/legal/owner'
 import { LegalScreen } from '@/screens/LegalScreen'
 
 function renderLegal() {
@@ -32,9 +32,15 @@ describe('LegalScreen', () => {
     )
   })
 
-  it('avisa mientras el responsable esté sin rellenar', () => {
+  it('identifica al responsable y da un contacto', () => {
     renderLegal()
-    expect(screen.getByRole('alert')).toHaveTextContent(/falta indicar quién es el responsable/i)
+    expect(screen.getByText(new RegExp(OWNER.name, 'i'))).toBeInTheDocument()
+    expect(screen.getAllByText(new RegExp(OWNER.email, 'i')).length).toBeGreaterThan(0)
+  })
+
+  it('no muestra el aviso de configuración pendiente', () => {
+    renderLegal()
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('nunca muestra el marcador de relleno como si fuera un dato real', () => {
@@ -45,24 +51,10 @@ describe('LegalScreen', () => {
 
 describe('ownerIsConfigured', () => {
   it('es falso mientras quede un marcador', () => {
-    expect(
-      ownerIsConfigured({
-        name: 'Ana',
-        email: PLACEHOLDER,
-        domain: 'ejemplo.es',
-        commercial: false,
-      }),
-    ).toBe(false)
+    expect(ownerIsConfigured({ name: 'Ana', email: PLACEHOLDER })).toBe(false)
   })
 
-  it('es cierto con los tres datos puestos', () => {
-    expect(
-      ownerIsConfigured({
-        name: 'Ana',
-        email: 'ana@ejemplo.es',
-        domain: 'ejemplo.es',
-        commercial: false,
-      }),
-    ).toBe(true)
+  it('es cierto con nombre y correo puestos', () => {
+    expect(ownerIsConfigured({ name: 'Ana', email: 'ana@ejemplo.es' })).toBe(true)
   })
 })

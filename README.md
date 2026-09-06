@@ -72,8 +72,8 @@ consentimiento. El almacenamiento local entra en la excepción de "estrictamente
 necesario" del art. 5.3 de ePrivacy, y el deber de informar se cumple en
 `/legal`.
 
-**Antes de desplegar hay que rellenar `src/legal/owner.ts`.** La pantalla
-`/legal` avisa en rojo mientras siga sin configurar. El análisis completo y la
+El responsable y el contacto salen de `src/legal/owner.ts`; la pantalla
+`/legal` avisa en rojo si se quedan sin configurar. El análisis completo y la
 lista de comprobación están en `docs/legal-despliegue.md`.
 
 Añadir analítica de cualquier tipo invalida lo anterior y obliga a replantear el
