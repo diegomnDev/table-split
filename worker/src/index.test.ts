@@ -166,7 +166,7 @@ describe('scan worker', () => {
     expect(response.status).toBe(200)
     expect(fetchSpy).toHaveBeenCalledTimes(2)
     expect(fetchSpy.mock.calls[0]?.[0]).toContain('gemini-3.7-flash')
-    expect(fetchSpy.mock.calls[1]?.[0]).toContain('gemini-2.5-flash')
+    expect(fetchSpy.mock.calls[1]?.[0]).toContain('gemini-3.6-flash')
   })
 
   it('si todos los modelos están saturados, lo dice sin culpar al usuario', async () => {

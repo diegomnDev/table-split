@@ -16,11 +16,17 @@ export type Env = {
 }
 
 /**
- * Tried in order. The newest Flash model is deliberately not first: on
- * 2026-09-06 gemini-3.8-flash answered 503 "high demand" five times in a row
- * while 3.7 answered immediately. A busy model must not become a failed scan.
+ * Tried in order, all verified against the live API on 2026-09-06.
+ *
+ * The newest Flash model is deliberately not first: gemini-3.8-flash answered
+ * 503 "high demand" on every attempt, and so did gemini-flash-latest. 3.7 is
+ * itself intermittent — it answered 200 and 503 minutes apart — which is the
+ * whole reason for a chain rather than one model.
+ *
+ * gemini-2.5-flash is NOT here on purpose: it still appears in ListModels but
+ * returns 404 "no longer available to new users". Listed does not mean usable.
  */
-const MODELS = ['gemini-3.7-flash', 'gemini-2.5-flash']
+const MODELS = ['gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-3.5-flash']
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'])
 

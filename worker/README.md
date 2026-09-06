@@ -21,20 +21,33 @@ environment to the Worker URL.
 
 ## Models
 
-Tried in order: `gemini-3.7-flash`, then `gemini-2.5-flash`. Set `GEMINI_MODEL`
-to put another one first; the rest stay as fallbacks.
+Tried in order: `gemini-3.7-flash`, `gemini-3.6-flash`, `gemini-3.5-flash`.
+Set `GEMINI_MODEL` to put another one first; the rest stay as fallbacks.
 
-`gemini-3.8-flash` is deliberately not the default. Measured on 2026-09-06 it
-answered `503 "This model is currently experiencing high demand"` five times in
-a row while 3.7 answered on the first try. A busy model must not become a
-failed scan.
+Measured against the live API on 2026-09-06:
+
+| Model | Result |
+|---|---|
+| `gemini-3.8-flash` | `503` every attempt — "experiencing high demand" |
+| `gemini-flash-latest` | `503` |
+| `gemini-3.7-flash` | works, but answered `503` and `200` minutes apart |
+| `gemini-3.6-flash` | works |
+| `gemini-3.5-flash` | works |
+| `gemini-2.5-flash` | `404` — "no longer available to new users" |
+
+Two lessons are baked into the chain. The newest model is not the default,
+because a busy model must not become a failed scan. And `gemini-2.5-flash` is
+excluded even though `ListModels` still returns it: **listed does not mean
+usable**.
 
 Only `503` and `429` move on to the next model. Any other upstream error stops
 immediately: retrying a malformed request elsewhere just burns quota.
 
 ## Verified behaviour
 
-Against a generated ticket with six lines, `gemini-3.7-flash` returned all six
+End to end through the deployed code path — browser to Worker to Gemini and
+back into the review sheet — against a generated ticket with six lines,
+`gemini-3.7-flash` returned all six
 correctly, divided the line totals by their quantity (`2 CROQUETAS 12,00` came
 back as quantity 2 at 600 cents each), and left out `SUBTOTAL`, `IVA` and
 `TOTAL` as instructed. The extracted lines summed to 77,70 €, matching the
