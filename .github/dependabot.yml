@@ -7,6 +7,9 @@ version: 2
 # updates always target the repository's default branch and there is no setting
 # to change that, so `develop` must be the default branch on GitHub for this to
 # hold. See docs/ramas-y-despliegue.md.
+# The ecosystem is "npm" even though this project uses pnpm: Dependabot has no
+# separate pnpm value, and the npm ecosystem covers npm, yarn and pnpm. Writing
+# "pnpm" here makes Dependabot reject the whole file.
 updates:
   - package-ecosystem: npm
     directory: /

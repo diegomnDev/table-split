@@ -9,18 +9,22 @@ vive en el `localStorage` del navegador de quien la crea.
 ## Desarrollo
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
+
+El proyecto usa **pnpm**. La versión exacta está fijada en el campo
+`packageManager` de `package.json`, así que Corepack y Vercel usan la misma que
+tú.
 
 | Script | Qué hace |
 |---|---|
-| `npm run dev` | Servidor de desarrollo |
-| `npm run build` | Build de producción en `dist/` |
-| `npm run preview` | Sirve el build, para probar la PWA |
-| `npm run test` | Tests (Vitest) |
-| `npm run lint` | Lint y formato (Biome) |
-| `npm run typecheck` | Comprobación de tipos |
+| `pnpm dev` | Servidor de desarrollo |
+| `pnpm build` | Build de producción en `dist/` |
+| `pnpm preview` | Sirve el build, para probar la PWA |
+| `pnpm test` | Tests (Vitest) |
+| `pnpm lint` | Lint y formato (Biome) |
+| `pnpm typecheck` | Comprobación de tipos |
 
 ## Cómo está organizado
 

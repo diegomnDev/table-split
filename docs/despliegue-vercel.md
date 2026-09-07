@@ -42,10 +42,13 @@ Vite solo. Los valores que debe mostrar:
 | Ajuste | Valor |
 |---|---|
 | Framework Preset | Vite |
-| Build Command | `npm run build` |
+| Build Command | `pnpm build` |
 | Output Directory | `dist` |
-| Install Command | `npm install` |
+| Install Command | `pnpm install` |
 | Node.js Version | 22.x o superior |
+
+Vercel detecta pnpm por el `pnpm-lock.yaml` y usa la versión que fija el campo
+`packageManager` de `package.json`. No hay que configurar nada de eso a mano.
 
 Desde el CLI, el equivalente es:
 
